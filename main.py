@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
-from pytube import YouTube
+import yt_dlp as youtube_dl
 
 def download():
     # Get the URL from the entry field and strip any leading/trailing spaces
@@ -11,14 +10,22 @@ def download():
     print(f"Attempting to download from URL: {url}")  # Debugging line
     
     try:
-        yt = YouTube(url)  # Attempt to create a YouTube object
-        video = yt.streams.filter(file_extension='mp4').all()   # Get all available streams
-        video.download()  # Download the video
-        messagebox.showinfo("Download Complete", " downloaded successfully.")
+        # Set up options for yt-dlp
+        ydl_opts = {
+            'format': 'bestvideo+bestaudio/best',
+            'outtmpl': '%(title)s.%(ext)s',  # Save with video title as filename
+        }
+        
+        # Use yt-dlp to download the video
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        
+        messagebox.showinfo("Download Complete", "Downloaded successfully.")
     except Exception as e:
         # Show an error message if something goes wrong
         messagebox.showerror("Error", str(e))
 
+# Create the main window
 window = tk.Tk()
 window.geometry("600x600")
 window.title("YTC")
@@ -46,4 +53,5 @@ url_entry.pack(pady=20)
 download_button = tk.Button(window, text="Proceed Download", command=download)
 download_button.pack(pady=20)
 
+# Start the Tkinter event loop
 window.mainloop()
